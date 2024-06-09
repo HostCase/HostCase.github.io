@@ -4,7 +4,7 @@ tg.MainButton.textColor = '#FFFFFF';
 tg.MainButton.color = '#2cab37';
 
 let xhr = new XMLHttpRequest();
-let url = "http://HostCase.pythonanywhere.com:5000/data";
+let url = "http://localhost:5000/data";
 xhr.open("POST", url, true);
 xhr.setRequestHeader("Content-Type", "application/json");
 
