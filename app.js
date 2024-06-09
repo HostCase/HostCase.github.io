@@ -11,7 +11,8 @@ xhr.setRequestHeader("Content-Type", "application/json");
 let data = JSON.stringify({
     "id": tg.initDataUnsafe.user.id,
     "username": tg.initDataUnsafe.user.username,
-    "language_code": tg.initDataUnsafe.user.language_code
+    "language_code": tg.initDataUnsafe.user.language_code,
+    "work": "codetest"
 });
 
 xhr.send(data);
