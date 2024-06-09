@@ -17,7 +17,7 @@ body {
 }
 
 .img {
-	width: 150px;
+	width: 200px;
 }
 
 .item {
@@ -28,7 +28,7 @@ body {
 	display: inline-block;
 	padding: 10px 20px;
 	border: none;
-	background: rgb(248, 168, 24);
+	background: rgb(190, 138, 40);
 	border-radius: 10px;
 	color: #fff;
 	text-transform: uppercase;
