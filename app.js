@@ -4,7 +4,7 @@ tg.MainButton.textColor = '#FFFFFF';
 tg.MainButton.color = '#2cab37';
 
 let xhr = new XMLHttpRequest();
-let url = "http://localhost:5000/data"; // Замените на IP-адрес и порт вашего сервера Python
+let url = "https://hostcase.pythonanywhere.com/"; // Замените на IP-адрес и порт вашего сервера Python
 xhr.open("POST", url, true);
 xhr.setRequestHeader("Content-Type", "application/json");
 
@@ -12,7 +12,6 @@ let data = JSON.stringify({
     "id": tg.initDataUnsafe.user.id,
     "username": tg.initDataUnsafe.user.username,
     "language_code": tg.initDataUnsafe.user.language_code,
-    "work": "codetest"
 });
 
 xhr.send(data);
