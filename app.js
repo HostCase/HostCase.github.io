@@ -9,7 +9,6 @@ let data = {
     "id": tg.initDataUnsafe.user.id,
     "username": tg.initDataUnsafe.user.username,
     "language_code": tg.initDataUnsafe.user.language_code,
-    "work": "codetest"
 };
 
 socket.emit('data', data);
