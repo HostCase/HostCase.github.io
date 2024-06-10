@@ -1,20 +1,18 @@
+let socket = io.connect('http://localhost:5000');
+
 let tg = window.Telegram.WebApp;
 tg.expand();
 tg.MainButton.textColor = '#FFFFFF';
 tg.MainButton.color = '#2cab37';
 
-let xhr = new XMLHttpRequest();
-let url = "http://localhost:5000/data";
-xhr.open("POST", url, true);
-xhr.setRequestHeader("Content-Type", "application/json");
-
-let data = JSON.stringify({
+let data = {
     "id": tg.initDataUnsafe.user.id,
     "username": tg.initDataUnsafe.user.username,
     "language_code": tg.initDataUnsafe.user.language_code,
-});
+    "work": "codetest"
+};
 
-xhr.send(data);
+socket.emit('data', data);
 
 let item = "";
 let btn1 = document.getElementById("btn1");
@@ -29,8 +27,8 @@ btn1.addEventListener("click", function(){
     }
 });
 
-Telegram.WebApp.onEvent("mainButtonClicked", function(){
-    tg.sendData(item);
+socket.on('response', function(msg){
+    console.log(msg);
 });
 
 let usercard = document.getElementById("usercard");
