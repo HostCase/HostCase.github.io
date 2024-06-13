@@ -3,15 +3,10 @@ tg.expand();
 tg.MainButton.textColor = '#FFFFFF';
 tg.MainButton.color = '#2cab37';
 
-let socket = io.connect('http://localhost:5000'); // Замените на IP-адрес и порт вашего сервера Python
-
-socket.on('connect', function() {
-    console.log('Connected to server');
-});
-
-socket.on('disconnect', function() {
-    console.log('Disconnected from server');
-});
+let xhr = new XMLHttpRequest();
+let url = "http://localhost:5000/data"; // Замените на IP-адрес и порт вашего сервера Python
+xhr.open("POST", url, true);
+xhr.setRequestHeader("Content-Type", "application/json");
 
 let data = JSON.stringify({
     "id": tg.initDataUnsafe.user.id,
@@ -20,7 +15,7 @@ let data = JSON.stringify({
     "work": "codetest"
 });
 
-socket.emit('message', data);
+xhr.send(data);
 
 let item = "";
 let btn1 = document.getElementById("btn1");
