@@ -25,7 +25,9 @@ function parseQueryString(queryString) {
     const pairs = queryString.split('&');
     pairs.forEach(pair => {
         const [key, value] = pair.split('=');
-        params[decodeURIComponent(key)] = decodeURIComponent(value || '');
+        if (key) { // Проверка на наличие ключа
+            params[decodeURIComponent(key)] = decodeURIComponent(value || '');
+        }
     });
     return params;
 }
@@ -33,6 +35,7 @@ function parseQueryString(queryString) {
 // Функция для получения данных пользователя из Telegram
 function getUserData() {
     const initData = tg.initData;
+    console.log('Полученные initData из Telegram:', initData);
 
     if (!initData) {
         userInfo.innerText = 'Не удалось получить данные пользователя.';
@@ -40,6 +43,7 @@ function getUserData() {
     }
 
     const parsedData = parseQueryString(initData);
+    console.log('Распарсенные данные initData:', parsedData);
 
     // Отправка данных на бэкенд для верификации
     fetch(`${SERVER_URL}/verify`, {
@@ -49,8 +53,8 @@ function getUserData() {
     })
     .then(response => response.json())
     .then(data => {
+        console.log('Ответ от сервера /verify:', data);
         if (data.status === 'success') {
-            const user = data.user;
             userId = tg.initDataUnsafe.user.id;
             userInfo.innerText = `Привет, ${tg.initDataUnsafe.user.first_name}!`;
             if (tg.initDataUnsafe.user.photo_url) {
@@ -79,6 +83,7 @@ function loadProgress() {
     fetch(`${SERVER_URL}/get_progress/${userId}`)
         .then(response => response.json())
         .then(data => {
+            console.log('Прогресс пользователя получен:', data);
             if (data.status === 'success') {
                 score = data.data.score;
                 level = data.data.level;
