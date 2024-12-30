@@ -1,5 +1,3 @@
-// frontend/script.js
-
 const tg = window.Telegram.WebApp;
 
 // Инициализация Telegram Web App
@@ -21,6 +19,17 @@ let userId = null;
 // URL вашего бэкенда
 const SERVER_URL = 'http://127.0.0.1:8000'; // Замените на ваш реальный URL или IP
 
+// Функция для парсинга строки запроса
+function parseQueryString(queryString) {
+    const params = {};
+    const pairs = queryString.split('&');
+    pairs.forEach(pair => {
+        const [key, value] = pair.split('=');
+        params[decodeURIComponent(key)] = decodeURIComponent(value || '');
+    });
+    return params;
+}
+
 // Функция для получения данных пользователя из Telegram
 function getUserData() {
     const initData = tg.initData;
@@ -30,11 +39,13 @@ function getUserData() {
         return;
     }
 
+    const parsedData = parseQueryString(initData);
+
     // Отправка данных на бэкенд для верификации
     fetch(`${SERVER_URL}/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(initData)
+        body: JSON.stringify(parsedData)
     })
     .then(response => response.json())
     .then(data => {
@@ -53,14 +64,17 @@ function getUserData() {
         }
     })
     .catch(error => {
-        console.error('Error:', error);
+        console.error('Ошибка при запросе /verify:', error);
         userInfo.innerText = 'Произошла ошибка при верификации.';
     });
 }
 
 // Функция для загрузки прогресса пользователя
 function loadProgress() {
-    if (!userId) return;
+    if (!userId) {
+        console.error('User ID не найден.');
+        return;
+    }
 
     fetch(`${SERVER_URL}/get_progress/${userId}`)
         .then(response => response.json())
@@ -72,13 +86,16 @@ function loadProgress() {
             }
         })
         .catch(error => {
-            console.error('Error:', error);
+            console.error('Ошибка при запросе /get_progress:', error);
         });
 }
 
 // Функция для сохранения прогресса пользователя
 function saveProgress() {
-    if (!userId) return;
+    if (!userId) {
+        console.error('User ID не найден.');
+        return;
+    }
 
     fetch(`${SERVER_URL}/save_progress`, {
         method: 'POST',
@@ -88,11 +105,11 @@ function saveProgress() {
     .then(response => response.json())
     .then(data => {
         if (data.status !== 'success') {
-            console.error('Error saving progress:', data.message);
+            console.error('Ошибка при сохранении прогресса:', data.message);
         }
     })
     .catch(error => {
-        console.error('Error:', error);
+        console.error('Ошибка при запросе /save_progress:', error);
     });
 }
 
