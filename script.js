@@ -13,7 +13,7 @@ let score = 0;
 let level = 1;
 let userId = null;
 
-const SERVER_URL = 'http://127.0.0.1:8000'; // Замените на ваш реальный URL или IP
+const SERVER_URL = '176.32.39.168:8000'; // Замените на ваш реальный URL или IP
 
 function parseQueryString(queryString) {
     const params = {};
