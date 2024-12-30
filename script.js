@@ -1,5 +1,4 @@
 const tg = window.Telegram.WebApp;
-
 tg.ready();
 
 const avatar = document.getElementById('avatar');
@@ -8,6 +7,7 @@ const scoreElement = document.getElementById('score');
 const levelElement = document.getElementById('level');
 const clickBtn = document.getElementById('click-btn');
 const closeBtn = document.getElementById('close-btn');
+const backgroundMusic = document.getElementById('background-music');
 
 let score = 0;
 let level = 1;
@@ -15,6 +15,23 @@ let userId = null;
 
 const SERVER_URL = 'https://vovasticcoinbot.tech';
 
+// Настройка фоновой музыки
+backgroundMusic.volume = 0.1; // Громкость 30%
+backgroundMusic.controls = false; // Скрываем элементы управления
+
+// Воспроизводим музыку после первого взаимодействия пользователя
+function startMusic() {
+    backgroundMusic.play().catch(error => {
+        console.error('Ошибка при воспроизведении музыки:', error);
+    });
+}
+
+// Запуск музыки после первого клика
+document.addEventListener('click', () => {
+    startMusic();
+}, { once: true });
+
+// Остальной код остается без изменений
 function parseQueryString(queryString) {
     const params = {};
     const pairs = queryString.split('&');
