@@ -13,7 +13,7 @@ let score = 0;
 let level = 1;
 let userId = null;
 
-const SERVER_URL = 'http://176.32.39.168:8000'; // 'http://127.0.0.1:8000';      'http://176.32.39.168:8000';
+const SERVER_URL = 'http://176.32.39.168:8000';
 
 function parseQueryString(queryString) {
     const params = {};
@@ -61,7 +61,7 @@ function getUserData() {
     })
     .catch(error => {
         console.error('Ошибка при запросе /verify:', error);
-        userInfo.innerText = 'Произошла ошибка при верификации. Версия 1.2';
+        userInfo.innerText = 'Произошла ошибка при верификации. Версия 1.3';
     });
 }
 
