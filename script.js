@@ -13,7 +13,7 @@ let score = 0;
 let level = 1;
 let userId = null;
 
-const SERVER_URL = 'https://176.32.39.168:8000';
+const SERVER_URL = 'https://vovasticcoinbot.tech:8000';
 
 function parseQueryString(queryString) {
     const params = {};
