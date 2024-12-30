@@ -150,7 +150,6 @@ function saveProgress() {
 
 function updateUI() {
     scoreElement.innerText = score;
-    levelElement.innerText = level;
 }
 
 closeBtn.addEventListener('click', () => {
