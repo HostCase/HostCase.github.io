@@ -1,0 +1,48 @@
+/* frontend/styles.css */
+
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #f0f8ff;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 400px;
+    margin: auto;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.avatar {
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+}
+
+.stats {
+    margin: 20px 0;
+}
+
+button {
+    padding: 15px 25px;
+    font-size: 16px;
+    margin: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#click-btn {
+    background-color: #28a745;
+    color: #fff;
+}
+
+#close-btn {
+    background-color: #dc3545;
+    color: #fff;
+}
