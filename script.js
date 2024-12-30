@@ -48,7 +48,8 @@ function getUserData() {
     .then(data => {
         console.log('Ответ от сервера /verify:', data);
         if (data.status === 'success') {
-            userId = tg.initDataUnsafe.user.id;
+            userId = data.userId;
+            console.log('userId после верификации:', userId);
             userInfo.innerText = `Привет, ${tg.initDataUnsafe.user.first_name}!`;
             if (tg.initDataUnsafe.user.photo_url) {
                 avatar.src = tg.initDataUnsafe.user.photo_url;
@@ -66,10 +67,10 @@ function getUserData() {
 
 function loadProgress() {
     if (!userId) {
-        console.error('User ID не найден.');
+        console.error('User ID не найден при загрузке прогресса.');
         return;
     }
-
+    console.log('Загрузка прогресса для userId:', userId);
     fetch(`${SERVER_URL}/progress/${userId}`)
         .then(response => response.json())
         .then(data => {
@@ -87,10 +88,10 @@ function loadProgress() {
 
 function saveProgress() {
     if (!userId) {
-        console.error('User ID не найден.');
+        console.error('User ID не найден при сохранении прогресса.');
         return;
     }
-
+    console.log('Сохранение прогресса для userId:', userId, 'score:', score, 'level:', level);
     fetch(`${SERVER_URL}/progress/${userId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
