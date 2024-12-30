@@ -50,7 +50,7 @@ function getUserData() {
         if (data.status === 'success') {
             userId = data.userId;
             console.log('userId после верификации:', userId);
-            userInfo.innerText = `Привет, ${tg.initDataUnsafe.user.first_name}!`;
+            userInfo.innerText = `Привет, ${tg.initDataUnsafe.user.first_name}! Версия 1.1`;
             if (tg.initDataUnsafe.user.photo_url) {
                 avatar.src = tg.initDataUnsafe.user.photo_url;
             }
