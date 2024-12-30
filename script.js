@@ -19,7 +19,7 @@ let level = 1;
 let userId = null;
 
 // URL вашего бэкенда
-const SERVER_URL = 'http://ваш_vds_IP:8000'; // Замените на ваш реальный URL или IP
+const SERVER_URL = 'http://127.0.0.1:8000'; // Замените на ваш реальный URL или IP
 
 // Функция для получения данных пользователя из Telegram
 function getUserData() {
