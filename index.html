@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Telegram Clicker</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -21,8 +21,10 @@
         <button id="click-btn">Кликни меня!</button>
         <button id="close-btn">Закрыть</button>
     </div>
-    <audio id="background-music" loop autoplay>
+    <!-- Элемент для фоновой музыки -->
+    <audio id="background-music" loop>
         <source src="background-music.mp3" type="audio/mpeg">
+        <source src="background-music.ogg" type="audio/ogg">
         Ваш браузер не поддерживает элемент <code>audio</code>.
     </audio>
     <script src="script.js"></script>
