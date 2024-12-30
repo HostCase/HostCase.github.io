@@ -1,127 +1,63 @@
-/* frontend/styles.css */
-
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    text-align: center;
-    background-color: #f0f8ff;
-    margin: 0;
-    padding: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-}
-
-.container {
-    max-width: 450px;
-    background: #ffffff;
-    padding: 40px;
-    border-radius: 15px;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-    transition: transform 0.2s ease-in-out;
-}
-
-.container:hover {
-    transform: scale(1.02);
-}
-
-h1 {
-    color: #333;
-    margin-bottom: 20px;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.05);
-}
-
-.avatar-container {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    overflow: hidden;
-    margin: 0 auto 20px;
-    box-shadow: 0 5px 10px rgba(0,0,0,0.15);
-}
-
-.avatar {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-#user-info {
-    font-size: 1.1em;
-    color: #555;
-    margin-bottom: 25px;
-}
-
-.stats {
-    margin: 30px 0;
-    padding: 20px;
-    background-color: #e8f0fe;
-    border-radius: 10px;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.stats p {
-    font-size: 1.2em;
-    color: #3a7bd5;
-    margin: 10px 0;
-}
-
-.stats p span {
-    font-weight: bold;
-    color: #58a6ff;
-}
-
-button {
-    padding: 15px 30px;
-    font-size: 1.1em;
-    margin: 10px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
-
-#click-btn {
-    background-color: #5cb85c;
-    color: #fff;
-}
-
-#click-btn:hover {
-    background-color: #4cae4c;
-}
-
-#close-btn {
-    background-color: #d9534f;
-    color: #fff;
-}
-
-#close-btn:hover {
-    background-color: #c9302c;
-}
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
+    font-family: 'Roboto', Arial, sans-serif; /* Стильный шрифт */
+    background-color: #000; /* Чёрный фон */
+    color: #fff; /* Белый текст */
     text-align: center;
     padding: 20px;
     touch-action: pan-y; /* Разрешаем только вертикальный скроллинг */
     overflow: auto; /* Разрешаем скроллинг */
+    margin: 0;
+}
+
+.user-info-container {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    text-align: right;
+}
+
+.avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-bottom: 5px;
+    border: 2px solid #fff; /* Белая рамка вокруг аватара */
+}
+
+#user-info {
+    font-size: 14px;
+    margin: 0;
 }
 
 .container {
     max-width: 600px;
     margin: 0 auto;
-    background-color: #fff;
+    background-color: #111; /* Тёмно-серый контейнер */
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1); /* Светлая тень */
+    margin-top: 70px;
 }
 
-.avatar {
+.stats {
+    margin-bottom: 20px;
+}
+
+.click-area {
+    margin-top: 20px;
+}
+
+#click-image {
     width: 100px;
     height: 100px;
-    border-radius: 50%;
-    margin-bottom: 10px;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+}
+
+.pew-text {
+    font-size: 16px;
+    margin-top: 5px;
+    color: #ddd; /* Светло-серый текст */
 }
 
 button {
@@ -129,4 +65,17 @@ button {
     margin: 10px;
     font-size: 16px;
     cursor: pointer;
+    background-color: #333; /* Темная кнопка */
+    color: #fff; /* Белый текст */
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #555; /* Более светлый оттенок при наведении */
+}
+
+button:active {
+    background-color: #777; /* Ещё светлее при нажатии */
 }

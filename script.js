@@ -5,18 +5,20 @@ const avatar = document.getElementById('avatar');
 const userInfo = document.getElementById('user-info');
 const scoreElement = document.getElementById('score');
 const levelElement = document.getElementById('level');
-const clickBtn = document.getElementById('click-btn');
+const clickImage = document.getElementById('click-image');
 const closeBtn = document.getElementById('close-btn');
 const backgroundMusic = document.getElementById('background-music');
+const clickSound = document.getElementById('click-sound');
 
 let score = 0;
 let level = 1;
 let userId = null;
+let currentImageIndex = 1; // Текущий индекс картинки
 
 const SERVER_URL = 'https://vovasticcoinbot.tech';
 
 // Настройка фоновой музыки
-backgroundMusic.volume = 0.1; // Громкость 30%
+backgroundMusic.volume = 0.3; // Громкость 30%
 backgroundMusic.controls = false; // Скрываем элементы управления
 
 // Воспроизводим музыку после первого взаимодействия пользователя
@@ -30,6 +32,27 @@ function startMusic() {
 document.addEventListener('click', () => {
     startMusic();
 }, { once: true });
+
+// Обработчик клика по картинке
+clickImage.addEventListener('click', () => {
+    // Увеличиваем счет
+    score += 1;
+    updateUI();
+    saveProgress();
+
+    // Воспроизводим звук клика
+    clickSound.play();
+
+    // Эффект уменьшения картинки
+    clickImage.style.transform = 'scale(0.9)';
+    setTimeout(() => {
+        clickImage.style.transform = 'scale(1)';
+    }, 100);
+
+    // Меняем картинку
+    currentImageIndex = currentImageIndex < 3 ? currentImageIndex + 1 : 1; // 3 картинки (image1.png, image2.png, image3.png)
+    clickImage.src = `image${currentImageIndex}.png`;
+});
 
 // Остальной код остается без изменений
 function parseQueryString(queryString) {
@@ -129,15 +152,6 @@ function updateUI() {
     scoreElement.innerText = score;
     levelElement.innerText = level;
 }
-
-clickBtn.addEventListener('click', () => {
-    score += 1;
-    if (score % 10 === 0) {
-        level += 1;
-    }
-    updateUI();
-    saveProgress();
-});
 
 closeBtn.addEventListener('click', () => {
     tg.close();
