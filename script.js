@@ -14,33 +14,47 @@ let authToken = null;
 let userId = null;
 let score = 0;
 let level = 1;
+let currentImageIndex = 1; // Текущий индекс картинки
 
 const SERVER_URL = 'https://vovasticcoinbot.tech';
 
 // Настройка фоновой музыки
-backgroundMusic.volume = 0.3;
-backgroundMusic.controls = false;
+backgroundMusic.volume = 0.3; // Громкость 30%
+backgroundMusic.controls = false; // Скрываем элементы управления
 
-document.addEventListener('click', () => {
+// Воспроизводим музыку после первого взаимодействия пользователя
+function startMusic() {
     backgroundMusic.play().catch(error => {
         console.error('Ошибка при воспроизведении музыки:', error);
     });
+}
+
+// Запуск музыки после первого клика
+document.addEventListener('click', () => {
+    startMusic();
 }, { once: true });
 
+// Обработчик клика по картинке
 clickImage.addEventListener('click', () => {
-    saveProgress();
-    clickSound.play();
-    clickImage.style.transform = 'scale(0.9)';
+    saveProgress(); // Сохраняем прогресс
+    clickSound.play(); // Воспроизводим звук клика
+    clickImage.style.transform = 'scale(0.9)'; // Эффект уменьшения картинки
     setTimeout(() => {
         clickImage.style.transform = 'scale(1)';
     }, 100);
+    // Меняем картинку (цикл из 3-х картинок)
+    currentImageIndex = currentImageIndex < 3 ? currentImageIndex + 1 : 1;
+    clickImage.src = `image${currentImageIndex}.png`;
 });
 
 function parseQueryString(queryString) {
     const params = {};
-    queryString.split('&').forEach(pair => {
+    const pairs = queryString.split('&');
+    pairs.forEach(pair => {
         const [key, value] = pair.split('=');
-        if (key) params[decodeURIComponent(key)] = decodeURIComponent(value || '');
+        if (key) {
+            params[decodeURIComponent(key)] = decodeURIComponent(value || '');
+        }
     });
     return params;
 }
@@ -67,11 +81,12 @@ function getUserData() {
         console.log('Ответ от сервера /verify:', data);
         if (data.status === 'success') {
             userId = data.userId;
-            authToken = data.token;
-            localStorage.setItem('authToken', authToken); // Сохраняем токен
+            authToken = data.token; // Сохраняем токен
             console.log('userId после верификации:', userId);
             userInfo.innerText = `Привет, ${tg.initDataUnsafe.user.first_name}! `;
-            avatar.src = tg.initDataUnsafe.user.photo_url || '';
+            if (tg.initDataUnsafe.user.photo_url) {
+                avatar.src = tg.initDataUnsafe.user.photo_url;
+            }
             loadProgress();
         } else {
             userInfo.innerText = 'Ошибка верификации: ' + data.message;
@@ -79,29 +94,49 @@ function getUserData() {
     })
     .catch(error => {
         console.error('Ошибка при запросе /verify:', error);
+        userInfo.innerText = 'Произошла ошибка при верификации. Версия 1.3';
     });
 }
 
 function loadProgress() {
-    authToken = authToken || localStorage.getItem('authToken');
+    if (!userId) {
+        console.error('User ID не найден при загрузке прогресса.');
+        return;
+    }
+    if (!authToken) {
+        console.error('Токен авторизации отсутствует.');
+        return;
+    }
+
+    console.log('Загрузка прогресса для userId:', userId);
     console.log('Отправка токена:', authToken);
-    console.log('Запрос к серверу:', `${SERVER_URL}/progress/${userId}`);
 
     fetch(`${SERVER_URL}/progress/${userId}`, {
-        headers: { 'Authorization': `Bearer ${authToken}` }
+        method: 'GET', // Явно указываем метод для прозрачности
+        headers: { 
+            'Authorization': `Bearer ${authToken}` 
+        }
     })
     .then(response => {
+        console.log('HTTP-ответ от сервера:', response);
+
         if (!response.ok) {
+            // Логируем полный ответ для диагностики
+            console.error(`Ошибка HTTP: ${response.status} ${response.statusText}`);
             throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
         }
+
         return response.json();
     })
     .then(data => {
-        console.log('Прогресс пользователя:', data);
+        console.log('Прогресс пользователя получен:', data);
+
         if (data.status === 'success') {
             score = data.progress.score;
             level = data.progress.level;
             updateUI();
+        } else {
+            console.error('Ошибка в данных ответа:', data.message);
         }
     })
     .catch(error => {
@@ -109,11 +144,13 @@ function loadProgress() {
     });
 }
 
-function saveProgress() {
-    authToken = authToken || localStorage.getItem('authToken');
-    console.log('Отправка токена:', authToken);
-    console.log('Запрос к серверу:', `${SERVER_URL}/progress/${userId}`);
 
+function saveProgress() {
+    if (!userId) {
+        console.error('User ID не найден при сохранении прогресса.');
+        return;
+    }
+    console.log('Инкремент кликов для userId:', userId);
     fetch(`${SERVER_URL}/progress/${userId}`, {
         method: 'POST',
         headers: { 
@@ -129,12 +166,14 @@ function saveProgress() {
         return response.json();
     })
     .then(data => {
-        if (data.status === 'success') {
-            loadProgress();
+        if (data.status !== 'success') {
+            console.error('Ошибка при сохранении прогресса:', data.message);
+        } else {
+            loadProgress(); // Перезагружаем прогресс после инкремента
         }
     })
     .catch(error => {
-        console.error('Ошибка при запросе /progress:', error.message);
+        console.error('Ошибка при запросе /progress:', error);
     });
 }
 
@@ -147,4 +186,5 @@ closeBtn.addEventListener('click', () => {
     tg.close();
 });
 
+// Запуск верификации пользователя
 getUserData();
