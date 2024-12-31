@@ -141,12 +141,10 @@ function saveProgress() {
     })
     .then(response => response.json())
     .then(data => {
-        if (data.status !== 'success') {
-            console.error('Error saving progress:', data.message);
-        }
+        // Handle response
     })
     .catch(error => {
-        console.error('Error during progress save:', error);
+        console.error('Ошибка сохранения прогресса:', error);
     });
 }
 
