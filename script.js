@@ -157,7 +157,7 @@ function saveProgress() {
             'Authorization': `Bearer ${authToken}`, 
             'Content-Type': 'application/json' 
         },
-        body: JSON.stringify({ score: score + 1 })
+        body: JSON.stringify({ score: score + 1 }) // Увеличиваем счетчик кликов
     })
     .then(response => {
         if (!response.ok) {
