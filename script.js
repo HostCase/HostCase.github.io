@@ -36,17 +36,14 @@ document.addEventListener('click', () => {
 
 // Обработчик клика по картинке
 clickImage.addEventListener('click', () => {
-    // Отправляем POST запрос на сервер для инкремента кликов
-    saveProgress();
-    // Воспроизводим звук клика
-    clickSound.play();
-    // Эффект уменьшения картинки
-    clickImage.style.transform = 'scale(0.9)';
+    saveProgress(); // Сохраняем прогресс
+    clickSound.play(); // Воспроизводим звук клика
+    clickImage.style.transform = 'scale(0.9)'; // Эффект уменьшения картинки
     setTimeout(() => {
         clickImage.style.transform = 'scale(1)';
     }, 100);
-    // Меняем картинку
-    currentImageIndex = currentImageIndex < 3 ? currentImageIndex + 1 : 1; // 3 картинки (image1.png, image2.png, image3.png)
+    // Меняем картинку (цикл из 3-х картинок)
+    currentImageIndex = currentImageIndex < 3 ? currentImageIndex + 1 : 1;
     clickImage.src = `image${currentImageIndex}.png`;
 });
 
@@ -108,9 +105,16 @@ function loadProgress() {
     }
     console.log('Загрузка прогресса для userId:', userId);
     fetch(`${SERVER_URL}/progress/${userId}`, {
-        headers: { 'Authorization': `Bearer ${authToken}` }
+        headers: { 
+            'Authorization': `Bearer ${authToken}` 
+        }
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
+        }
+        return response.json();
+    })
     .then(data => {
         console.log('Прогресс пользователя получен:', data);
         if (data.status === 'success') {
@@ -130,21 +134,25 @@ function saveProgress() {
         return;
     }
     console.log('Инкремент кликов для userId:', userId);
-    const token = localStorage.getItem('token');
     fetch(`${SERVER_URL}/progress/${userId}`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token
+        headers: { 
+            'Authorization': `Bearer ${authToken}`, 
+            'Content-Type': 'application/json' 
         },
-        body: JSON.stringify({ score: score, level: level })
+        body: JSON.stringify({ score: score + 1 })
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.status !== 'success') {
             console.error('Ошибка при сохранении прогресса:', data.message);
         } else {
-            loadProgress(); // Reload progress after increment
+            loadProgress(); // Перезагружаем прогресс после инкремента
         }
     })
     .catch(error => {
@@ -161,4 +169,5 @@ closeBtn.addEventListener('click', () => {
     tg.close();
 });
 
+// Запуск верификации пользователя
 getUserData();
