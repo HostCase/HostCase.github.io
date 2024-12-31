@@ -11,6 +11,8 @@ const backgroundMusic = document.getElementById('background-music');
 const clickSound = document.getElementById('click-sound');
 
 let userId = null;
+let score = 0;
+let level = 1;
 let currentImageIndex = 1; // Текущий индекс картинки
 
 const SERVER_URL = 'https://vovasticcoinbot.tech';
@@ -69,12 +71,12 @@ function getUserData() {
     }
 
     const parsedData = parseQueryString(initData);
-    console.log('Распарсенные данные initData:', parsedData);
+    console.log('Parsed Data:', parsedData);
 
     fetch(`${SERVER_URL}/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(parsedData)
+        body: JSON.stringify({ user: JSON.stringify(parsedData.user), hash: parsedData.hash })
     })
     .then(response => response.json())
     .then(data => {
@@ -116,9 +118,9 @@ function loadProgress() {
     .then(data => {
         console.log('Прогресс пользователя получен:', data);
         if (data.status === 'success') {
-            const progress = data.progress;
-            scoreElement.innerText = progress.score;
-            levelElement.innerText = progress.level;
+            score = data.progress.score;
+            level = data.progress.level;
+            updateUI();
         }
     })
     .catch(error => {
@@ -138,7 +140,8 @@ function saveProgress() {
         headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + token
-        }
+        },
+        body: JSON.stringify({ score: score, level: level })
     })
     .then(response => response.json())
     .then(data => {
@@ -151,6 +154,11 @@ function saveProgress() {
     .catch(error => {
         console.error('Ошибка при запросе /progress:', error);
     });
+}
+
+function updateUI() {
+    scoreElement.innerText = score;
+    levelElement.innerText = level;
 }
 
 closeBtn.addEventListener('click', () => {
