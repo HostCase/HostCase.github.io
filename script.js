@@ -71,16 +71,16 @@ function getUserData() {
     }
 
     const parsedData = parseQueryString(initData);
-    console.log('Parsed Data:', parsedData);
+    console.log('Parsed Data User:', parsedData.user);
 
     fetch(`${SERVER_URL}/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user: JSON.stringify(parsedData.user), hash: parsedData.hash })
+        body: JSON.stringify({ user: parsedData.user, hash: parsedData.hash })
     })
     .then(response => response.json())
     .then(data => {
-        console.log('Ответ от сервера /verify:', data);
+        console.log('Received token:', data.token);
         if (data.status === 'success') {
             userId = data.userId;
             console.log('userId после верификации:', userId);
