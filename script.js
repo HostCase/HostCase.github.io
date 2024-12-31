@@ -10,9 +10,9 @@ const closeBtn = document.getElementById('close-btn');
 const backgroundMusic = document.getElementById('background-music');
 const clickSound = document.getElementById('click-sound');
 
-let userId = null;
 let score = 0;
 let level = 1;
+let userId = null;
 let currentImageIndex = 1; // Текущий индекс картинки
 
 const SERVER_URL = 'https://vovasticcoinbot.tech';
@@ -35,20 +35,26 @@ document.addEventListener('click', () => {
 
 // Обработчик клика по картинке
 clickImage.addEventListener('click', () => {
-    // Отправляем POST запрос на сервер для инкремента кликов
+    // Увеличиваем счет
+    score += 1;
+    updateUI();
     saveProgress();
+
     // Воспроизводим звук клика
     clickSound.play();
+
     // Эффект уменьшения картинки
     clickImage.style.transform = 'scale(0.9)';
     setTimeout(() => {
         clickImage.style.transform = 'scale(1)';
     }, 100);
+
     // Меняем картинку
     currentImageIndex = currentImageIndex < 3 ? currentImageIndex + 1 : 1; // 3 картинки (image1.png, image2.png, image3.png)
     clickImage.src = `image${currentImageIndex}.png`;
 });
 
+// Остальной код остается без изменений
 function parseQueryString(queryString) {
     const params = {};
     const pairs = queryString.split('&');
@@ -71,16 +77,16 @@ function getUserData() {
     }
 
     const parsedData = parseQueryString(initData);
-    console.log('Parsed Data User:', parsedData.user);
+    console.log('Распарсенные данные initData:', parsedData);
 
     fetch(`${SERVER_URL}/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user: parsedData.user, hash: parsedData.hash })
+        body: JSON.stringify(parsedData)
     })
     .then(response => response.json())
     .then(data => {
-        console.log('Received token:', data.token);
+        console.log('Ответ от сервера /verify:', data);
         if (data.status === 'success') {
             userId = data.userId;
             console.log('userId после верификации:', userId);
@@ -88,7 +94,6 @@ function getUserData() {
             if (tg.initDataUnsafe.user.photo_url) {
                 avatar.src = tg.initDataUnsafe.user.photo_url;
             }
-            localStorage.setItem('token', data.token); // Store the token
             loadProgress();
         } else {
             userInfo.innerText = 'Ошибка верификации: ' + data.message;
@@ -106,26 +111,19 @@ function loadProgress() {
         return;
     }
     console.log('Загрузка прогресса для userId:', userId);
-    const token = localStorage.getItem('token');
-    fetch(`${SERVER_URL}/progress/${userId}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Прогресс пользователя получен:', data);
-        if (data.status === 'success') {
-            score = data.progress.score;
-            level = data.progress.level;
-            updateUI();
-        }
-    })
-    .catch(error => {
-        console.error('Ошибка при запросе /progress:', error);
-    });
+    fetch(`${SERVER_URL}/progress/${userId}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log('Прогресс пользователя получен:', data);
+            if (data.status === 'success') {
+                score = data.progress.score;
+                level = data.progress.level;
+                updateUI();
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка при запросе /progress:', error);
+        });
 }
 
 function saveProgress() {
@@ -133,22 +131,16 @@ function saveProgress() {
         console.error('User ID не найден при сохранении прогресса.');
         return;
     }
-    console.log('Инкремент кликов для userId:', userId);
-    const token = localStorage.getItem('token');
+    console.log('Сохранение прогресса для userId:', userId, 'score:', score, 'level:', level);
     fetch(`${SERVER_URL}/progress/${userId}`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ score: score, level: level })
     })
     .then(response => response.json())
     .then(data => {
         if (data.status !== 'success') {
             console.error('Ошибка при сохранении прогресса:', data.message);
-        } else {
-            loadProgress(); // Reload progress after increment
         }
     })
     .catch(error => {
@@ -158,7 +150,6 @@ function saveProgress() {
 
 function updateUI() {
     scoreElement.innerText = score;
-    levelElement.innerText = level;
 }
 
 closeBtn.addEventListener('click', () => {
