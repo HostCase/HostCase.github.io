@@ -131,6 +131,80 @@ function loadProgress() {
     });
 }
 
+function fetchUpgradeCost() {
+    if (!userId) {
+        console.error('User ID не найден при получении стоимости улучшения.');
+        return;
+    }
+    if (!authToken) {
+        console.error('Токен авторизации отсутствует.');
+        return;
+    }
+
+    fetch(`${SERVER_URL}/progress/${userId}`, {
+        method: 'GET',
+        headers: { 
+            'Authorization': `Bearer ${authToken}` 
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            const userProgress = data.progress;
+            upgradeCost = userProgress.next_upgrade_cost || 0; // Получаем стоимость улучшения с сервера
+            upgradeCostElement.innerText = upgradeCost;
+        } else {
+            console.error('Ошибка в данных ответа:', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка при запросе стоимости улучшения:', error);
+    });
+}
+
+function applyUpgrade() {
+    if (!userId) {
+        console.error('User ID не найден при применении улучшения.');
+        return;
+    }
+    if (!authToken) {
+        console.error('Токен авторизации отсутствует.');
+        return;
+    }
+
+    fetch(`${SERVER_URL}/upgrade/apply`, {
+        method: 'POST',
+        headers: { 
+            'Authorization': `Bearer ${authToken}`, 
+            'Content-Type': 'application/json' 
+        },
+        body: JSON.stringify({ userId: userId }) // Отправляем запрос на улучшение
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            loadProgress(); // Обновляем прогресс после улучшения
+            fetchUpgradeCost(); // Обновляем стоимость следующего улучшения
+            alert('Улучшение успешно применено!');
+        } else {
+            alert('Ошибка при применении улучшения: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка при применении улучшения:', error);
+    });
+}
+
 function saveProgress() {
     if (!userId) {
         console.error('User ID не найден при сохранении прогресса.');
@@ -162,77 +236,6 @@ function saveProgress() {
     });
 }
 
-function fetchUpgradeCost() {
-    if (!userId) {
-        console.error('User ID не найден при получении стоимости улучшения.');
-        return;
-    }
-    if (!authToken) {
-        console.error('Токен авторизации отсутствует.');
-        return;
-    }
-
-    fetch(`${SERVER_URL}/progress/${userId}`, {
-        method: 'GET',
-        headers: { 
-            'Authorization': `Bearer ${authToken}` 
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.status === 'success') {
-            const userProgress = data.progress;
-            upgradeCost = Math.floor(userProgress.score * 0.2) + 10;
-            upgradeCostElement.innerText = upgradeCost;
-        } else {
-            console.error('Ошибка в данных ответа:', data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Ошибка при запросе стоимости улучшения:', error);
-    });
-}
-
-function applyUpgrade() {
-    if (score < upgradeCost) {
-        alert('Недостаточно очков для улучшения!');
-        return;
-    }
-
-    fetch(`${SERVER_URL}/progress/${userId}`, {
-        method: 'POST',
-        headers: { 
-            'Authorization': `Bearer ${authToken}`, 
-            'Content-Type': 'application/json' 
-        },
-        body: JSON.stringify({ score: score - upgradeCost })
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.status === 'success') {
-            score -= upgradeCost;
-            updateUI();
-            fetchUpgradeCost();
-            alert('Улучшение успешно применено!');
-        } else {
-            alert('Ошибка при применении улучшения: ' + data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Ошибка при применении улучшения:', error);
-    });
-}
-
 function updateUI() {
     scoreElement.innerText = score;
     levelElement.innerText = level;
@@ -240,7 +243,7 @@ function updateUI() {
 
 upgradeBtn.addEventListener('click', () => {
     applyUpgrade();
-}); 
+});
 
 closeBtn.addEventListener('click', () => {
     tg.close();
