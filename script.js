@@ -9,32 +9,31 @@ const clickImage = document.getElementById('click-image');
 const closeBtn = document.getElementById('close-btn');
 const backgroundMusic = document.getElementById('background-music');
 const clickSound = document.getElementById('click-sound');
+const upgradeBtn = document.getElementById('upgrade-btn');
+const upgradeCostElement = document.getElementById('upgrade-cost');
 
 let authToken = null;
 let userId = null;
 let score = 0;
 let level = 1;
 let currentImageIndex = 1; // Текущий индекс картинки
-
+let upgradeCost = 0; // Стоимость улучшения
 const SERVER_URL = 'https://vovasticcoinbot.tech';
 
 // Настройка фоновой музыки
 backgroundMusic.volume = 0.3; // Громкость 30%
 backgroundMusic.controls = false; // Скрываем элементы управления
 
-// Воспроизводим музыку после первого взаимодействия пользователя
 function startMusic() {
     backgroundMusic.play().catch(error => {
         console.error('Ошибка при воспроизведении музыки:', error);
     });
 }
 
-// Запуск музыки после первого клика
 document.addEventListener('click', () => {
     startMusic();
 }, { once: true });
 
-// Обработчик клика по картинке
 clickImage.addEventListener('click', () => {
     saveProgress(); // Сохраняем прогресс
     clickSound.play(); // Воспроизводим звук клика
@@ -42,7 +41,7 @@ clickImage.addEventListener('click', () => {
     setTimeout(() => {
         clickImage.style.transform = 'scale(1)';
     }, 100);
-    // Меняем картинку (цикл из 3-х картинок)
+
     currentImageIndex = currentImageIndex < 3 ? currentImageIndex + 1 : 1;
     clickImage.src = `image${currentImageIndex}.png`;
 });
@@ -62,15 +61,12 @@ function parseQueryString(queryString) {
 function getUserData() {
     const initData = tg.initData;
     console.log('Полученные initData из Telegram:', initData);
-
     if (!initData) {
         userInfo.innerText = 'Не удалось получить данные пользователя.';
         return;
     }
-
     const parsedData = parseQueryString(initData);
     console.log('Распарсенные данные initData:', parsedData);
-
     fetch(`${SERVER_URL}/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -88,6 +84,7 @@ function getUserData() {
                 avatar.src = tg.initDataUnsafe.user.photo_url;
             }
             loadProgress();
+            fetchUpgradeCost(); // Получаем стоимость улучшения
         } else {
             userInfo.innerText = 'Ошибка верификации: ' + data.message;
         }
@@ -108,56 +105,44 @@ function loadProgress() {
         return;
     }
 
-    console.log('Загрузка прогресса для userId:', userId);
-    console.log('Отправка токена:', authToken);
-
     fetch(`${SERVER_URL}/progress/${userId}`, {
-        method: 'GET', // Явно указываем метод для прозрачности
+        method: 'GET',
         headers: { 
             'Authorization': `Bearer ${authToken}` 
         }
     })
     .then(response => {
-        console.log('HTTP-ответ от сервера:', response);
-
         if (!response.ok) {
-            // Логируем полный ответ для диагностики
-            console.error(`Ошибка HTTP: ${response.status} ${response.statusText}`);
             throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
         }
-
         return response.json();
     })
     .then(data => {
-        console.log('Прогресс пользователя получен:', data);
-
         if (data.status === 'success') {
             score = data.progress.score;
-            level = data.progress.level;
+            level = Math.floor(score / 10) + 1;
             updateUI();
         } else {
             console.error('Ошибка в данных ответа:', data.message);
         }
     })
     .catch(error => {
-        console.error('Ошибка при запросе /progress:', error.message);
+        console.error('Ошибка при запросе прогресса:', error);
     });
 }
-
 
 function saveProgress() {
     if (!userId) {
         console.error('User ID не найден при сохранении прогресса.');
         return;
     }
-    console.log('Инкремент кликов для userId:', userId);
     fetch(`${SERVER_URL}/progress/${userId}`, {
         method: 'POST',
         headers: { 
             'Authorization': `Bearer ${authToken}`, 
             'Content-Type': 'application/json' 
         },
-        body: JSON.stringify({ score: score + 1 }) // Увеличиваем счетчик кликов
+        body: JSON.stringify({ score: score + 1 })
     })
     .then(response => {
         if (!response.ok) {
@@ -173,7 +158,78 @@ function saveProgress() {
         }
     })
     .catch(error => {
-        console.error('Ошибка при запросе /progress:', error);
+        console.error('Ошибка при сохранении прогресса:', error);
+    });
+}
+
+function fetchUpgradeCost() {
+    if (!userId) {
+        console.error('User ID не найден при получении стоимости улучшения.');
+        return;
+    }
+    if (!authToken) {
+        console.error('Токен авторизации отсутствует.');
+        return;
+    }
+
+    fetch(`${SERVER_URL}/progress/${userId}`, {
+        method: 'GET',
+        headers: { 
+            'Authorization': `Bearer ${authToken}` 
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            const userProgress = data.progress;
+            upgradeCost = Math.floor(userProgress.score * 0.2) + 10;
+            upgradeCostElement.innerText = upgradeCost;
+        } else {
+            console.error('Ошибка в данных ответа:', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка при запросе стоимости улучшения:', error);
+    });
+}
+
+function applyUpgrade() {
+    if (score < upgradeCost) {
+        alert('Недостаточно очков для улучшения!');
+        return;
+    }
+
+    fetch(`${SERVER_URL}/progress/${userId}`, {
+        method: 'POST',
+        headers: { 
+            'Authorization': `Bearer ${authToken}`, 
+            'Content-Type': 'application/json' 
+        },
+        body: JSON.stringify({ score: score - upgradeCost })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            score -= upgradeCost;
+            updateUI();
+            fetchUpgradeCost();
+            alert('Улучшение успешно применено!');
+        } else {
+            alert('Ошибка при применении улучшения: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка при применении улучшения:', error);
     });
 }
 
@@ -181,6 +237,10 @@ function updateUI() {
     scoreElement.innerText = score;
     levelElement.innerText = level;
 }
+
+upgradeBtn.addEventListener('click', () => {
+    applyUpgrade();
+}); 
 
 closeBtn.addEventListener('click', () => {
     tg.close();
