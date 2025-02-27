@@ -1,6 +1,8 @@
 const tg = window.Telegram.WebApp;
 tg.ready();
 
+const SERVER_URL = 'https://vovasticcoinbot.tech';
+
 const avatar = document.getElementById('avatar');
 const userInfo = document.getElementById('user-info');
 const scoreElement = document.getElementById('score');
@@ -12,13 +14,26 @@ const clickSound = document.getElementById('click-sound');
 const upgradeBtn = document.getElementById('upgrade-btn');
 const upgradeCostElement = document.getElementById('upgrade-cost');
 
+const leaderboardContainer = document.createElement('div');
+leaderboardContainer.id = 'leaderboard-container';
+leaderboardContainer.innerHTML = `<div id="leaderboard">
+    <button id="close-leaderboard">&times;</button>
+    <h2>🏆 Топ игроков</h2>
+    <ul id="leaderboard-list"></ul>
+</div>`;
+document.body.appendChild(leaderboardContainer);
+
+const leaderboardBtn = document.createElement('button');
+leaderboardBtn.innerText = '🏆 Топ игроков';
+leaderboardBtn.id = 'leaderboard-btn';
+document.body.appendChild(leaderboardBtn);
+
 let authToken = null;
 let userId = null;
 let score = 0;
 let level = 1;
 let currentImageIndex = 1;
 let upgradeCost = 0;
-const SERVER_URL = 'https://vovasticcoinbot.tech';
 
 backgroundMusic.volume = 0.3;
 backgroundMusic.controls = false;
@@ -43,6 +58,25 @@ clickImage.addEventListener('click', () => {
 
     currentImageIndex = currentImageIndex < 3 ? currentImageIndex + 1 : 1;
     clickImage.src = `image${currentImageIndex}.png`;
+});
+
+leaderboardBtn.addEventListener('click', () => {
+    fetch(`${SERVER_URL}/leaderboard`)
+        .then(res => res.json())
+        .then(data => {
+            const list = document.getElementById('leaderboard-list');
+            list.innerHTML = '';
+            data.players.forEach(player => {
+                const li = document.createElement('li');
+                li.innerHTML = `<img src="${player.avatar}" class="leaderboard-avatar"> ⚡${player.clicks}`;
+                list.appendChild(li);
+            });
+            leaderboardContainer.style.display = 'flex';
+        });
+});
+
+document.getElementById('close-leaderboard').addEventListener('click', () => {
+    leaderboardContainer.style.display = 'none';
 });
 
 function parseQueryString(queryString) {
