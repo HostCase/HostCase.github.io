@@ -79,3 +79,25 @@ button:hover {
 button:active {
     background-color: #777;
 }
+
+@media (max-width: 600px) {
+    .container {
+        width: 90%;
+        padding: 10px;
+    }
+
+    #click-image {
+        width: 80px;
+        height: 80px;
+    }
+
+    .stats p {
+        font-size: 14px;
+    }
+
+    button {
+        width: 100%;
+        padding: 12px;
+        font-size: 18px;
+    }
+}

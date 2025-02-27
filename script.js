@@ -16,13 +16,12 @@ let authToken = null;
 let userId = null;
 let score = 0;
 let level = 1;
-let currentImageIndex = 1; // Текущий индекс картинки
-let upgradeCost = 0; // Стоимость улучшения
+let currentImageIndex = 1;
+let upgradeCost = 0;
 const SERVER_URL = 'https://vovasticcoinbot.tech';
 
-// Настройка фоновой музыки
-backgroundMusic.volume = 0.3; // Громкость 30%
-backgroundMusic.controls = false; // Скрываем элементы управления
+backgroundMusic.volume = 0.3;
+backgroundMusic.controls = false;
 
 function startMusic() {
     backgroundMusic.play().catch(error => {
@@ -35,9 +34,9 @@ document.addEventListener('click', () => {
 }, { once: true });
 
 clickImage.addEventListener('click', () => {
-    saveProgress(); // Сохраняем прогресс
-    clickSound.play(); // Воспроизводим звук клика
-    clickImage.style.transform = 'scale(0.9)'; // Эффект уменьшения картинки
+    saveProgress();
+    clickSound.play();
+    clickImage.style.transform = 'scale(0.9)';
     setTimeout(() => {
         clickImage.style.transform = 'scale(1)';
     }, 100);
@@ -60,13 +59,11 @@ function parseQueryString(queryString) {
 
 function getUserData() {
     const initData = tg.initData;
-    console.log('Полученные initData из Telegram:', initData);
     if (!initData) {
         userInfo.innerText = 'Не удалось получить данные пользователя.';
         return;
     }
     const parsedData = parseQueryString(initData);
-    console.log('Распарсенные данные initData:', parsedData);
     fetch(`${SERVER_URL}/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -74,56 +71,37 @@ function getUserData() {
     })
     .then(response => response.json())
     .then(data => {
-        console.log('Ответ от сервера /verify:', data);
         if (data.status === 'success') {
             userId = data.userId;
-            authToken = data.token; // Сохраняем токен
-            console.log('userId после верификации:', userId);
-            userInfo.innerText = `Привет, ${tg.initDataUnsafe.user.first_name}! `;
+            authToken = data.token;
+            userInfo.innerText = `Привет, ${tg.initDataUnsafe.user.first_name}!`;
             if (tg.initDataUnsafe.user.photo_url) {
                 avatar.src = tg.initDataUnsafe.user.photo_url;
             }
             loadProgress();
-            fetchUpgradeCost(); // Получаем стоимость улучшения
+            fetchUpgradeCost();
         } else {
             userInfo.innerText = 'Ошибка верификации: ' + data.message;
         }
     })
     .catch(error => {
-        console.error('Ошибка при запросе /verify:', error);
-        userInfo.innerText = 'Произошла ошибка при верификации. Версия 1.3';
+        userInfo.innerText = 'Произошла ошибка при верификации.';
     });
 }
 
 function loadProgress() {
-    if (!userId) {
-        console.error('User ID не найден при загрузке прогресса.');
-        return;
-    }
-    if (!authToken) {
-        console.error('Токен авторизации отсутствует.');
-        return;
-    }
+    if (!userId || !authToken) return;
 
     fetch(`${SERVER_URL}/progress/${userId}`, {
         method: 'GET',
-        headers: { 
-            'Authorization': `Bearer ${authToken}` 
-        }
+        headers: { 'Authorization': `Bearer ${authToken}` }
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
-        }
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
         if (data.status === 'success') {
             score = data.progress.score;
             level = Math.floor(score / 10) + 1;
             updateUI();
-        } else {
-            console.error('Ошибка в данных ответа:', data.message);
         }
     })
     .catch(error => {
@@ -132,34 +110,17 @@ function loadProgress() {
 }
 
 function fetchUpgradeCost() {
-    if (!userId) {
-        console.error('User ID не найден при получении стоимости улучшения.');
-        return;
-    }
-    if (!authToken) {
-        console.error('Токен авторизации отсутствует.');
-        return;
-    }
+    if (!userId || !authToken) return;
 
     fetch(`${SERVER_URL}/progress/${userId}`, {
         method: 'GET',
-        headers: { 
-            'Authorization': `Bearer ${authToken}` 
-        }
+        headers: { 'Authorization': `Bearer ${authToken}` }
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
-        }
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
         if (data.status === 'success') {
-            const userProgress = data.progress;
-            upgradeCost = userProgress.next_upgrade_cost || 0; // Получаем стоимость улучшения с сервера
+            upgradeCost = data.progress.next_upgrade_cost || 0;
             upgradeCostElement.innerText = upgradeCost;
-        } else {
-            console.error('Ошибка в данных ответа:', data.message);
         }
     })
     .catch(error => {
@@ -168,36 +129,19 @@ function fetchUpgradeCost() {
 }
 
 function applyUpgrade() {
-    if (!userId) {
-        console.error('User ID не найден при применении улучшения.');
-        return;
-    }
-    if (!authToken) {
-        console.error('Токен авторизации отсутствует.');
-        return;
-    }
+    if (!userId || !authToken) return;
 
     fetch(`${SERVER_URL}/upgrade/apply`, {
         method: 'POST',
-        headers: { 
-            'Authorization': `Bearer ${authToken}`, 
-            'Content-Type': 'application/json' 
-        },
-        body: JSON.stringify({ userId: userId }) // Отправляем запрос на улучшение
+        headers: { 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: userId })
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
-        }
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
         if (data.status === 'success') {
-            loadProgress(); // Обновляем прогресс после улучшения
-            fetchUpgradeCost(); // Обновляем стоимость следующего улучшения
+            loadProgress();
+            fetchUpgradeCost();
             alert('Улучшение успешно применено!');
-        } else {
-            alert('Ошибка при применении улучшения: ' + data.message);
         }
     })
     .catch(error => {
@@ -206,29 +150,17 @@ function applyUpgrade() {
 }
 
 function saveProgress() {
-    if (!userId) {
-        console.error('User ID не найден при сохранении прогресса.');
-        return;
-    }
+    if (!userId) return;
+
     fetch(`${SERVER_URL}/progress/${userId}`, {
         method: 'POST',
-        headers: { 
-            'Authorization': `Bearer ${authToken}`, 
-            'Content-Type': 'application/json' 
-        },
+        headers: { 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ score: score + 1 })
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
-        }
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
-        if (data.status !== 'success') {
-            console.error('Ошибка при сохранении прогресса:', data.message);
-        } else {
-            loadProgress(); // Перезагружаем прогресс после инкремента
+        if (data.status === 'success') {
+            loadProgress();
         }
     })
     .catch(error => {
@@ -249,5 +181,4 @@ closeBtn.addEventListener('click', () => {
     tg.close();
 });
 
-// Запуск верификации пользователя
 getUserData();
