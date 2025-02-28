@@ -16,11 +16,13 @@ const upgradeCostElement = document.getElementById('upgrade-cost');
 
 const leaderboardContainer = document.createElement('div');
 leaderboardContainer.id = 'leaderboard-container';
-leaderboardContainer.innerHTML = `<div id="leaderboard">
-    <button id="close-leaderboard">&times;</button>
-    <h2>🏆 Топ игроков</h2>
-    <ul id="leaderboard-list"></ul>
-</div>`;
+leaderboardContainer.innerHTML = `
+    <div id="leaderboard">
+        <button id="close-leaderboard">&times;</button>
+        <h2>🏆 Топ игроков</h2>
+        <ul id="leaderboard-list"></ul>
+    </div>
+`;
 document.body.appendChild(leaderboardContainer);
 
 const leaderboardBtn = document.createElement('button');
